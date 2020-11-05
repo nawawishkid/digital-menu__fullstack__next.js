@@ -5,11 +5,23 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "knex": "knex"
   },
   "dependencies": {
+    "axios": "^0.21.0",
+    "classnames": "^2.2.6",
+    "dotenv": "^8.2.0",
+    "formik": "^2.2.1",
+    "knex": "^0.21.12",
+    "mysql": "^2.18.1",
     "next": "10.0.1",
     "react": "17.0.1",
     "react-dom": "17.0.1"
+  },
+  "devDependencies": {
+    "@fullhuman/postcss-purgecss": "^3.0.0",
+    "postcss-preset-env": "^6.7.0",
+    "tailwindcss": "^1.9.6"
   }
 }
