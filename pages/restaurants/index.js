@@ -1,8 +1,10 @@
 import Head from "next/head";
 import React from "react";
-import axios from "axios";
+import { withAuth } from "../../components/auth";
 import Button from "../../components/button";
 import Link from "../../components/link";
+import LogoutButton from "../../components/logout-button";
+import { useRestaurants } from "../../contexts/restaurants";
 
 const NoRestaurant = () => {
   return (
@@ -24,16 +26,9 @@ const RestaurantItem = ({ name }) => {
   return <div>{name}</div>;
 };
 
-export default function Restaurants() {
-  const [restaurants, setRestaurants] = React.useState(null);
+function Restaurants() {
+  const [restaurants] = useRestaurants();
   let result;
-
-  React.useEffect(() => {
-    axios
-      .get("/api/restaurants")
-      .then(res => setRestaurants(res.data.restaurants))
-      .catch(err => console.log(err) || setRestaurants(0));
-  });
 
   if (restaurants === null) {
     result = <p>Loading...</p>;
@@ -60,6 +55,7 @@ export default function Restaurants() {
       <Head>
         <title>Your restaurants</title>
       </Head>
+      <LogoutButton />
       <div className="p-4">
         <h1 className="mb-16">Your restaurants</h1>
         <center>
@@ -69,3 +65,5 @@ export default function Restaurants() {
     </>
   );
 }
+
+export default withAuth()(Restaurants);

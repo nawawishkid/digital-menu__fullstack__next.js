@@ -23,3 +23,7 @@ input,
 textarea {
   @apply bg-gray-200 rounded py-2 px-4;
 }
+
+a {
+  @apply underline;
+}

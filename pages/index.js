@@ -1,10 +1,12 @@
+import React from "react";
 import Head from "next/head";
 import Link from "../components/link";
 import Credit from "../components/credit";
 import Logo from "../components/logo";
 import Button from "../components/button";
+import { withAuth } from "../components/auth";
 
-export default function Home() {
+function Home() {
   return (
     <>
       <Head>
@@ -14,7 +16,7 @@ export default function Home() {
         <Logo />
         <p>Are you a restaurant owner?</p>
         <p>Sign up for your online menu below.</p>
-        <Link href="/login">
+        <Link href="/otp">
           <Button>Create your menu</Button>
         </Link>
         <Credit />
@@ -22,3 +24,5 @@ export default function Home() {
     </>
   );
 }
+
+export default withAuth({ publicOnly: true, redirect: "/restaurants" })(Home);

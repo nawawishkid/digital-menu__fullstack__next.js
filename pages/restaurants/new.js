@@ -1,20 +1,11 @@
-import { ErrorMessage, Field as FormikField, Form, Formik } from "formik";
+import { Form, Formik } from "formik";
 import Head from "next/head";
 import React from "react";
+import { withAuth } from "../../components/auth";
 import Button from "../../components/button";
+import Field from "../../components/field";
 
-const Field = props => (
-  <div className="mb-4">
-    <FormikField {...props} />
-    <ErrorMessage
-      name={props.name}
-      component="div"
-      className="text-red-500 mt-2"
-    />
-  </div>
-);
-
-export default function NewRestaurant() {
+function NewRestaurant() {
   return (
     <>
       <Head>
@@ -78,3 +69,5 @@ export default function NewRestaurant() {
     </>
   );
 }
+
+export default withAuth()(NewRestaurant);
