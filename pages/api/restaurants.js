@@ -1,5 +1,5 @@
+import S3 from "aws-sdk/clients/s3";
 import { promises as fs } from "fs";
-import path from "path";
 import nc from "next-connect";
 import * as yup from "yup";
 import authenticate from "../../middlewares/authenticate";
@@ -10,7 +10,6 @@ import {
   findRestaurantByOwnerId,
   updateRestaurantById,
 } from "../../services/restaurants";
-import mkdirp from "mkdirp";
 
 const getRestaurants = async (req, res) => {
   const restaurants = await findRestaurantByOwnerId(req.user.id);
@@ -22,6 +21,12 @@ const getRestaurants = async (req, res) => {
  * @todo Handle file upload
  */
 const createRestaurants = async (req, res) => {
+  const s3 = new S3({
+    credentials: {
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    },
+  });
   const profilePictureFile = req.files.profilePicture;
   const data = {
     ...req.body,
@@ -29,16 +34,26 @@ const createRestaurants = async (req, res) => {
     profilePicture: profilePictureFile.path,
   };
 
-  // const restaurantId = 123;
   const restaurantId = await createRestaurant(data);
   const [fileName, fileExtension] = profilePictureFile.name.split(".");
-  const directory = path.join(`files/restaurants/`, restaurantId);
-  const profilePicturePath = `${directory}/${fileName}-${Date.now()}.${fileExtension}`;
+  const newFileName = `${fileName}-${Date.now()}.${fileExtension}`;
+  const s3Params = {
+    Bucket: process.env.AWS_BUCKET_NAME,
+    Body: await fs.readFile(profilePictureFile.path),
+    Key: `restaurants/${restaurantId}/${newFileName}`,
+    ContentType: profilePictureFile.type,
+  };
 
-  await mkdirp(directory);
-  await fs.rename(profilePictureFile.path, profilePicturePath);
+  const uploadedData = await new Promise((resolve, reject) => {
+    s3.upload(s3Params, (err, data) => {
+      if (err) reject(err);
+
+      resolve(data);
+    });
+  });
+
   await updateRestaurantById(restaurantId, {
-    profilePicture: profilePicturePath,
+    profilePicture: uploadedData.Location,
   });
 
   res.status(201).json({ restaurantId });
@@ -52,12 +67,8 @@ export default nc({
 })
   .use(authenticate())
   .get(getRestaurants)
-  .use(multipartFormData())
-  .use((req, res, next) => {
-    console.log(`body: `, req.body);
-    next();
-  })
   .post(
+    multipartFormData(),
     validate(
       "body",
       yup.object().shape({
