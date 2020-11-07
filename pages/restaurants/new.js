@@ -1,11 +1,17 @@
+import Axios from "axios";
 import { Form, Formik } from "formik";
+import * as yup from "yup";
 import Head from "next/head";
+import { useRouter } from "next/router";
 import React from "react";
 import { withAuth } from "../../components/auth";
 import Button from "../../components/button";
 import Field from "../../components/field";
+import ImageUploader from "../../components/image-uploader";
 
 function NewRestaurant() {
+  const router = useRouter();
+
   return (
     <>
       <Head>
@@ -13,37 +19,50 @@ function NewRestaurant() {
       </Head>
       <center>
         <Formik
-          initialValues={{ name: "", description: "", profilePicture: null }}
-          validate={values => {
-            console.log(`validating: `, values);
-            const errors = {};
-
-            if (!values.name) {
-              errors.name = `Name is required!`;
-            } else if (!/^[a-zA-Zก-๙]+\w*/.test(values.name)) {
-              errors.name = `Name must begins with a-z, A-Z, ก-๙`;
-            }
-
-            return errors;
-          }}
+          initialValues={{ name: "", bio: "", profilePicture: "" }}
+          validationSchema={yup.object().shape({
+            name: yup
+              .string()
+              .required()
+              .trim()
+              .matches(
+                /^[a-zA-Zก-๙]+\w*/,
+                `Name must begins with [a-z, A-Z, ก-๙]`
+              ),
+            bio: yup.string().nullable().trim(),
+            profilePicture: yup.mixed().required(),
+          })}
           onSubmit={(values, { setSubmitting }) => {
             console.log(values);
+            const formData = new FormData();
+
+            Object.entries(values).forEach(([key, value]) =>
+              formData.append(key, value)
+            );
+
+            for (let key of formData.entries()) {
+              console.log(key);
+            }
+            // return;
+            Axios.post("/api/restaurants", formData, { timeout: 5000 })
+              .then(res => {
+                console.log(`res: `, res);
+                router.push("/restaurants/" + res.data.restaurantId);
+              })
+              .catch(console.log)
+              .finally(() => setSubmitting(false));
           }}
         >
-          {({ isSubmitting }) => (
+          {({ isSubmitting, setFieldValue }) => (
             <Form className="w-full sm:w-1/2 lg:w-1/4 p-4">
-              <label
-                htmlFor="profilePicture"
-                className="rounded-full bg-gray-200 flex items-center justify-center p-4 text-gray-500 mb-4 cursor-"
-                style={{ width: `100px`, height: `100px` }}
-              >
-                Tap here to add picture
-              </label>
-              <Field
+              <ImageUploader
                 name="profilePicture"
                 id="profilePicture"
-                type="file"
-                className="hidden"
+                onChange={e => {
+                  console.log(`name: `, e.target.name);
+                  console.log(`file: `, e.target.files[0]);
+                  setFieldValue(e.target.name, e.target.files[0]);
+                }}
               />
               <Field
                 name="name"

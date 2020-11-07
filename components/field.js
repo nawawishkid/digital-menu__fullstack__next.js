@@ -1,15 +1,22 @@
 import { ErrorMessage, Field as FormikField } from "formik";
 import React from "react";
 
-const Field = props => (
+export const BaseField = ({ name, children }) => (
   <div className="mb-4">
-    <FormikField {...props} />
-    <ErrorMessage
-      name={props.name}
-      component="div"
-      className="text-red-500 mt-2"
-    />
+    {children}
+    <ErrorMessage name={name} component="div" className="text-red-500 mt-2" />
   </div>
+);
+const Field = props => (
+  <BaseField name={props.name}>
+    <FormikField {...props} />
+  </BaseField>
+);
+
+export const FileField = props => (
+  <BaseField name={props.name}>
+    <input type="file" {...props} />
+  </BaseField>
 );
 
 export default Field;
