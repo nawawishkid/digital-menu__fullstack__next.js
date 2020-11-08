@@ -1,15 +1,17 @@
 import S3 from "aws-sdk/clients/s3";
 import { promises as fs } from "fs";
-import nc from "next-connect";
 import * as yup from "yup";
+import nc from "../../helpers/next-connect";
 import authenticate from "../../middlewares/authenticate";
 import multipartFormData from "../../middlewares/multipart-form-data";
 import validate from "../../middlewares/validate";
+import { createMenu } from "../../services/menus";
 import {
   createRestaurant,
   findRestaurantByOwnerId,
   updateRestaurantById,
 } from "../../services/restaurants";
+import { addFile } from "../../services/files";
 
 const getRestaurants = async (req, res) => {
   const restaurants = await findRestaurantByOwnerId(req.user.id);
@@ -21,29 +23,26 @@ const getRestaurants = async (req, res) => {
  * @todo Handle file upload
  */
 const createRestaurants = async (req, res) => {
+  const profilePictureFile = req.files.profilePicture;
+  const restaurantData = {
+    ...req.body,
+    owner: req.user.id,
+  };
+  const restaurantId = await createRestaurant(restaurantData);
+  const [fileName, fileExtension] = profilePictureFile.name.split(".");
+  const newFileName = `${fileName}-${Date.now()}.${fileExtension}`;
   const s3 = new S3({
     credentials: {
       accessKeyId: process.env.AWS_ACCESS_KEY_ID,
       secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
     },
   });
-  const profilePictureFile = req.files.profilePicture;
-  const data = {
-    ...req.body,
-    owner: req.user.id,
-    profilePicture: profilePictureFile.path,
-  };
-
-  const restaurantId = await createRestaurant(data);
-  const [fileName, fileExtension] = profilePictureFile.name.split(".");
-  const newFileName = `${fileName}-${Date.now()}.${fileExtension}`;
   const s3Params = {
     Bucket: process.env.AWS_BUCKET_NAME,
     Body: await fs.readFile(profilePictureFile.path),
     Key: `restaurants/${restaurantId}/${newFileName}`,
     ContentType: profilePictureFile.type,
   };
-
   const uploadedData = await new Promise((resolve, reject) => {
     s3.upload(s3Params, (err, data) => {
       if (err) reject(err);
@@ -51,20 +50,31 @@ const createRestaurants = async (req, res) => {
       resolve(data);
     });
   });
+  const fileData = {
+    name: newFileName,
+    path: uploadedData.Location,
+    type: profilePictureFile.type,
+    size: profilePictureFile.size,
+    addedBy: req.user.id,
+  };
+  const [fileId] = await addFile(fileData);
 
   await updateRestaurantById(restaurantId, {
-    profilePicture: uploadedData.Location,
+    profilePicture: fileId,
   });
+
+  const menuData = {
+    name: "default",
+    ownedBy: restaurantId,
+    createdBy: req.user.id,
+  };
+
+  await createMenu(menuData);
 
   res.status(201).json({ restaurantId });
 };
 
-export default nc({
-  onError: (err, req, res) => {
-    console.log(err);
-    res.status(err.status || 500).json({ error: err.name ? err : err.error });
-  },
-})
+export default nc()
   .use(authenticate())
   .get(getRestaurants)
   .post(
