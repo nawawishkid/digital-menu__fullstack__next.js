@@ -37,20 +37,11 @@ exports.up = function (knex) {
       table.string("name", 255).notNullable().unique();
       table.text("description");
     })
-    .createTable("role_capabilities", table => {
-      table.integer("role").notNullable().unsigned();
-      table.integer("capability").notNullable().unsigned();
-
-      table.foreign("role").references("id").inTable("roles");
-      table.foreign("capability").references("id").inTable("capabilities");
-
-      table.primary(["role", "capability"]);
-    })
     .createTable("restaurants", table => {
       table.uuid("id").notNullable().primary();
       table.string("name", 255).notNullable().index();
       table.text("bio");
-      table.integer("profilePicture").notNullable().unsigned();
+      table.integer("profilePicture").unsigned();
       table.integer("owner").unsigned().notNullable();
       table.timestamp("createdAt").notNullable().defaultTo(knex.fn.now());
 
@@ -85,6 +76,15 @@ exports.up = function (knex) {
       table.foreign("menu").references("id").inTable("menus");
 
       table.unique(["name", "menu"]);
+    })
+    .createTable("role_capabilities", table => {
+      table.integer("role").notNullable().unsigned();
+      table.integer("capability").notNullable().unsigned();
+
+      table.foreign("role").references("id").inTable("roles");
+      table.foreign("capability").references("id").inTable("capabilities");
+
+      table.primary(["role", "capability"]);
     })
     .createTable("restaurant_ingredients", table => {
       table.increments("id");
@@ -122,15 +122,15 @@ exports.down = function (knex) {
   return knex.schema
     .dropTable("dish_pictures")
     .dropTable("dish_ingredients")
+    .dropTable("restaurant_ingredients")
     .dropTable("role_capabilities")
-    .dropTable("dish_ingredients")
-    .dropTable("otps")
     .dropTable("dishes")
     .dropTable("menus")
     .dropTable("restaurants")
-    .dropTable("files")
     .dropTable("cuisines")
     .dropTable("roles")
     .dropTable("capabilities")
+    .dropTable("otps")
+    .dropTable("files")
     .dropTable("users");
 };
