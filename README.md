@@ -32,10 +32,14 @@ ER diagram: [https://dbdiagram.io/d/5f9d27e13a78976d7b79ebe6](https://dbdiagram.
 
 ---
 
-## Dev Notes
+## Notes to self
 
 - Next.js API does not support `multipart/form-data` content type by default. You have to handle this yourself e.g. create parser middleware using `formidable` library. You also need to disable the default body parser provided by Next.js for your parser to work. See [https://chadalen.com/blog/how-to-add-multipart-form-middleware-in-nextjs-and-use-it-in-an-api-route.md/](https://chadalen.com/blog/how-to-add-multipart-form-middleware-in-nextjs-and-use-it-in-an-api-route.md/)
-- You should use `next-connect` library to handle API request middlewares the same way as `express` does.
-- Using `yup` for data validation for both HTML form (using `formik`) and HTTP request is quite easy
+- Using `next-connect` library to handle API requests middlewares the same way as `express` does.
+- Using `yup` for data validation for both HTML form (using `formik`) and the HTTP request is quite easy
 - Uploading files to AWS S3: [https://stackabuse.com/uploading-files-to-aws-s3-with-node-js/](https://stackabuse.com/uploading-files-to-aws-s3-with-node-js/)
 - The default `Content-Type` HTTP header of the uploaded files in S3 is `binary/octet-stream` which hint web browsers to open download dialog instead of displaying the image. You have to set parameter `ContentType` of the `upload()` method of the SDK to the type of the image so that the browser displays it correctly.
+- Spend too much time on OTP login mechanism and files uploading.
+- `cookies` library will store information directly in the HTTP cookies, not just a session ID.
+- Set `ACL` key in S3 param object to `public-read` to enable public access of the file. Otherwise, the file isn't accessible from public. See [https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#upload-property](https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#upload-property)
+- Set `nestTables` option of `knex` query builder to `true` when joining multiple tables to get result as object containing results from each joined table. See [https://github.com/knex/knex/issues/882#issuecomment-176802754](https://github.com/knex/knex/issues/882#issuecomment-176802754)
