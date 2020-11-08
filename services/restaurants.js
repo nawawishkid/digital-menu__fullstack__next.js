@@ -8,7 +8,19 @@ export const findRestaurants = (select = null) => {
 export const findRestaurantById = id =>
   knex("restaurants").select().where("id", id);
 export const findRestaurantByOwnerId = ownerId =>
-  knex("restaurants").select().where("owner", ownerId);
+  knex("restaurants as r")
+    .select()
+    .where("r.owner", ownerId)
+    .innerJoin("users as u", "r.owner", "u.id")
+    .innerJoin("files as f", "r.profilePicture", "f.id")
+    .options({ nestTables: true })
+    .then(rows =>
+      rows.map(({ r, u, f }) => {
+        delete u.createdAt;
+
+        return { ...r, profilePicture: f.path, owner: u };
+      })
+    );
 export const createRestaurant = data => {
   const id = nanoid();
 
