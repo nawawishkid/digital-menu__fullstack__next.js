@@ -7,6 +7,17 @@ exports.up = function (knex) {
       table.string("lastName", 255);
       table.timestamp("createdAt").defaultTo(knex.fn.now());
     })
+    .createTable("files", table => {
+      table.increments("id");
+      table.string("name", 255).notNullable().index();
+      table.text("description");
+      table.text("path").notNullable();
+      table.string("type").notNullable();
+      table.integer("size").notNullable();
+      table.integer("addedBy").notNullable().unsigned();
+
+      table.foreign("addedBy").references("id").inTable("users");
+    })
     .createTable("otps", table => {
       table.increments("id");
       table.integer("user").unsigned().notNullable();
@@ -39,14 +50,15 @@ exports.up = function (knex) {
       table.uuid("id").notNullable().primary();
       table.string("name", 255).notNullable().index();
       table.text("bio");
-      table.text("profilePicture").notNullable();
+      table.integer("profilePicture").notNullable().unsigned();
       table.integer("owner").unsigned().notNullable();
       table.timestamp("createdAt").notNullable().defaultTo(knex.fn.now());
 
       table.foreign("owner").references("id").inTable("users");
+      table.foreign("profilePicture").references("id").inTable("files");
     })
     .createTable("menus", table => {
-      table.increments("id");
+      table.uuid("id").notNullable().primary();
       table.string("name", 255).notNullable().index();
       table.text("description");
       table.uuid("ownedBy").notNullable();
@@ -62,41 +74,41 @@ exports.up = function (knex) {
       table.text("description");
     })
     .createTable("dishes", table => {
-      table.increments("id");
+      table.uuid("id").notNullable().primary();
       table.string("name", 255).notNullable().index();
       table.text("description");
       table.float("price").notNullable();
       table.integer("cuisine").unsigned().notNullable();
-      table.integer("menu").unsigned().notNullable();
+      table.uuid("menu").notNullable();
 
       table.foreign("cuisine").references("id").inTable("cuisines");
       table.foreign("menu").references("id").inTable("menus");
 
       table.unique(["name", "menu"]);
     })
-    .createTable("ingredients", table => {
+    .createTable("restaurant_ingredients", table => {
       table.increments("id");
+      table.uuid("restaurant").notNullable();
       table.string("name", 255).notNullable().index();
-      table.text("description");
+
+      table.foreign("restaurant").references("id").inTable("restaurants");
+
+      table.unique(["restaurant", "name"]);
     })
     .createTable("dish_ingredients", table => {
-      table.integer("dish").unsigned().notNullable();
+      table.uuid("dish").notNullable();
       table.integer("ingredient").unsigned().notNullable();
 
       table.foreign("dish").references("id").inTable("dishes");
-      table.foreign("ingredient").references("id").inTable("ingredients");
+      table
+        .foreign("ingredient")
+        .references("id")
+        .inTable("restaurant_ingredients");
 
       table.primary(["dish", "ingredient"]);
     })
-    .createTable("files", table => {
-      table.increments("id");
-      table.string("name", 255).notNullable().index();
-      table.text("description");
-      table.text("filePath").notNullable();
-      table.string("fileType").notNullable();
-    })
     .createTable("dish_pictures", table => {
-      table.integer("dish").unsigned().notNullable();
+      table.uuid("dish").notNullable();
       table.integer("file").unsigned().notNullable();
 
       table.foreign("dish").references("id").inTable("dishes");
@@ -109,8 +121,9 @@ exports.up = function (knex) {
 exports.down = function (knex) {
   return knex.schema
     .dropTable("dish_pictures")
-    .dropTable("dishe_ingredients")
+    .dropTable("dish_ingredients")
     .dropTable("role_capabilities")
+    .dropTable("dish_ingredients")
     .dropTable("otps")
     .dropTable("dishes")
     .dropTable("menus")
@@ -119,6 +132,5 @@ exports.down = function (knex) {
     .dropTable("cuisines")
     .dropTable("roles")
     .dropTable("capabilities")
-    .dropTable("users")
-    .dropTable("ingredients");
+    .dropTable("users");
 };
