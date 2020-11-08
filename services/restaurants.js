@@ -1,4 +1,4 @@
-import { nanoid } from "nanoid";
+import nanoid from "../helpers/nanoid";
 import knex from "../knex";
 
 export const findRestaurants = (select = null) => {
