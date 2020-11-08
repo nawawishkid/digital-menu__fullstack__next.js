@@ -8,7 +8,7 @@ export const findFiles = (select = null) => {
 export const findFileById = id => knex("files").select().where("id", id);
 export const findFileByOwnerId = ownerId =>
   knex("files").select().where("owner", ownerId);
-export const createFile = data => {
+export const addFile = data => {
   const id = nanoid();
 
   return knex("files")
