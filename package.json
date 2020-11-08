@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "knex": "knex",
-    "db": "./bin/db"
+    "db": "./bin/db",
+    "migrate:up": "knex migrate:up",
+    "migrate:down": "knex migrate:down"
   },
   "dependencies": {
     "aws-sdk": "^2.787.0",
