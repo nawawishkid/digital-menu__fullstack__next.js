@@ -42,6 +42,7 @@ const createRestaurants = async (req, res) => {
     Body: await fs.readFile(profilePictureFile.path),
     Key: `restaurants/${restaurantId}/${newFileName}`,
     ContentType: profilePictureFile.type,
+    ACL: "public-read",
   };
   const uploadedData = await new Promise((resolve, reject) => {
     s3.upload(s3Params, (err, data) => {
