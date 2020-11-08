@@ -1,26 +1,27 @@
 import nanoid from "../helpers/nanoid";
 import knex from "../knex";
 
+const transformJoinedResult = ({ r, u, f }) => {
+  delete u.createdAt;
+
+  return { ...r, profilePicture: f.path, owner: u };
+};
+const transformJoinedResultMultiple = rows => rows.map(transformJoinedResult);
+const baseSelectStatement = knex("restaurants as r")
+  .select()
+  .innerJoin("users as u", "r.owner", "u.id")
+  .innerJoin("files as f", "r.profilePicture", "f.id")
+  .options({ nestTables: true });
+
 export const findRestaurants = (select = null) => {
   return knex("restaurants").select(select);
 };
-
 export const findRestaurantById = id =>
-  knex("restaurants").select().where("id", id);
+  baseSelectStatement.where("r.id", id).then(transformJoinedResultMultiple);
 export const findRestaurantByOwnerId = ownerId =>
-  knex("restaurants as r")
-    .select()
+  baseSelectStatement
     .where("r.owner", ownerId)
-    .innerJoin("users as u", "r.owner", "u.id")
-    .innerJoin("files as f", "r.profilePicture", "f.id")
-    .options({ nestTables: true })
-    .then(rows =>
-      rows.map(({ r, u, f }) => {
-        delete u.createdAt;
-
-        return { ...r, profilePicture: f.path, owner: u };
-      })
-    );
+    .then(transformJoinedResultMultiple);
 export const createRestaurant = data => {
   const id = nanoid();
 
