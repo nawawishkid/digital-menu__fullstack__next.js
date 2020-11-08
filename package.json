@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "knex": "knex"
+    "knex": "knex",
+    "docker": "./bin/docker"
   },
   "dependencies": {
     "aws-sdk": "^2.787.0",
