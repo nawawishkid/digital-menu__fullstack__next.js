@@ -22,8 +22,19 @@ const NoRestaurant = () => {
   );
 };
 
-const RestaurantItem = ({ name }) => {
-  return <div>{name}</div>;
+const RestaurantItem = ({ name, profilePicture, id }) => {
+  return (
+    <Link href={`restaurants/${id}`} className="no-underline">
+      <div className="rounded p-4 flex justify-start bg-white shadow-sm mb-4">
+        <img
+          src={profilePicture}
+          className="rounded-full"
+          style={{ width: `64px`, height: `64px` }}
+        />
+        <span className="flex items-center ml-8">{name}</span>
+      </div>
+    </Link>
+  );
 };
 
 function Restaurants() {
@@ -36,13 +47,18 @@ function Restaurants() {
     result = <p>Error fetching restaurants</p>;
   } else if (Array.isArray(restaurants)) {
     result = restaurants.length ? (
-      <ul>
-        {restaurants.map(rest => (
-          <li key={rest.id}>
-            <RestaurantItem {...rest} />
-          </li>
-        ))}
-      </ul>
+      <div>
+        <ul>
+          {restaurants.map(rest => (
+            <li key={rest.id}>
+              <RestaurantItem {...rest} />
+            </li>
+          ))}
+        </ul>
+        <Link href="/restaurants/new">
+          <Button>Create another restaurant</Button>
+        </Link>
+      </div>
     ) : (
       <NoRestaurant />
     );

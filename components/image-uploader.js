@@ -1,5 +1,5 @@
 import React from "react";
-import { FileField } from "./field";
+import { BaseField, FileField } from "./field";
 
 export default function ImageUploader({ name, id, onChange, ...props }) {
   const [preview, setPreview] = React.useState(null);
@@ -30,7 +30,7 @@ export default function ImageUploader({ name, id, onChange, ...props }) {
     <div>
       <label
         htmlFor={id}
-        className="rounded-full bg-gray-200 bg-contain bg-center flex items-center justify-center p-4 text-gray-500 mb-4 cursor-"
+        className="rounded-full bg-gray-200 bg-cover bg-center bg-no-repeat flex items-center justify-center p-4 text-gray-500 mb-4 cursor-"
         style={{
           width: `100px`,
           height: `100px`,
@@ -39,13 +39,15 @@ export default function ImageUploader({ name, id, onChange, ...props }) {
       >
         {!preview ? `Tap here to add picture` : null}
       </label>
-      <FileField
-        name={name}
-        id={id}
-        className="hidden"
-        accept="image/*"
-        onChange={handleChange}
-      />
+      <BaseField name={name}>
+        <input
+          name={name}
+          id={id}
+          className="hidden"
+          accept="image/*"
+          onChange={handleChange}
+        />
+      </BaseField>
     </div>
   );
 }

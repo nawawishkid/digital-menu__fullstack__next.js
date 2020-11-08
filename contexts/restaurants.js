@@ -4,7 +4,7 @@ import React from "react";
 export const RestaurantsContext = React.createContext();
 export const RestaurantsProvider = ({
   children,
-  restaurants: initialRestaurants = [],
+  restaurants: initialRestaurants = null,
 }) => {
   const [restaurants, setRestaurants] = React.useState(initialRestaurants);
 

@@ -1,8 +1,9 @@
 import { ErrorMessage, Field as FormikField } from "formik";
 import React from "react";
+import classnames from "classnames";
 
-export const BaseField = ({ name, children }) => (
-  <div className="mb-4">
+export const BaseField = ({ name, children, className, ...props }) => (
+  <div className={classnames("mb-4", className)} {...props}>
     {children}
     <ErrorMessage name={name} component="div" className="text-red-500 mt-2" />
   </div>
@@ -10,12 +11,6 @@ export const BaseField = ({ name, children }) => (
 const Field = props => (
   <BaseField name={props.name}>
     <FormikField {...props} />
-  </BaseField>
-);
-
-export const FileField = props => (
-  <BaseField name={props.name}>
-    <input type="file" {...props} />
   </BaseField>
 );
 
