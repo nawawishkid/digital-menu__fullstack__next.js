@@ -2,7 +2,10 @@ import * as yup from "yup";
 import nc from "../../../../helpers/next-connect";
 import authenticate from "../../../../middlewares/authenticate";
 import validate from "../../../../middlewares/validate";
-import { findRestaurantIngredientsByRestaurantId } from "../../../../services/restaurant-ingredients";
+import {
+  createRestaurantIngredient,
+  findRestaurantIngredientsByRestaurantId,
+} from "../../../../services/restaurant-ingredients";
 
 const getIngredients = async (req, res) => {
   const { restaurantId } = req.query;
@@ -12,7 +15,16 @@ const getIngredients = async (req, res) => {
 
   res.json({ ingredients });
 };
-const addIngredients = (req, res) => {};
+const addIngredients = async (req, res) => {
+  const { restaurantId } = req.query;
+  const data = { ...req.body, restaurant: restaurantId };
+
+  await createRestaurantIngredient(data);
+
+  res.status(201).json({
+    message: `Ingredient created`,
+  });
+};
 
 export default nc()
   .use(authenticate())
@@ -23,4 +35,13 @@ export default nc()
     )
   )
   .get(getIngredients)
-  .post(addIngredients);
+  .post(
+    validate(
+      "body",
+      yup.object().shape({
+        restaurant: yup.string().required(),
+        name: yup.string().required(),
+      })
+    ),
+    addIngredients
+  );
