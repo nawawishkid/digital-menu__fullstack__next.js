@@ -24,7 +24,7 @@ const NoRestaurant = () => {
 
 const RestaurantItem = ({ name, profilePicture, id }) => {
   return (
-    <Link href={`restaurants/${id}`} className="no-underline">
+    <Link href={`@${id}`} className="no-underline">
       <div className="rounded p-4 flex justify-start bg-white shadow-sm mb-4">
         <img
           src={profilePicture}

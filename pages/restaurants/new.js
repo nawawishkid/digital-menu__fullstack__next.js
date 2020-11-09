@@ -25,7 +25,7 @@ const handleSubmit = router => (values, actions) => {
   Axios.post("/api/restaurants", formData, { timeout: 5000 })
     .then(res => {
       console.log(`res: `, res);
-      router.push("/restaurants/" + res.data.restaurantId);
+      router.push("/@" + res.data.restaurantId);
     })
     .catch(console.log)
     .finally(() => actions.setSubmitting(false));
