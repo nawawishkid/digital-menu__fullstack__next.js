@@ -1,19 +1,12 @@
+import { useRouter } from "next/router";
 import * as yup from "yup";
 import { Form, Formik, Field as FormikField } from "formik";
 import React from "react";
-import Button from "../../../components/button";
-import Field, { BaseField } from "../../../components/field";
 import Axios from "axios";
+import Button from "../../../../components/button";
+import Field, { BaseField } from "../../../../components/field";
 
 const PicturesSlider = () => "this is pictures slider";
-const initialValues = {
-  name: "",
-  price: "",
-  description: "",
-  pictures: [],
-  cuisine: "",
-  ingredients: [],
-};
 const validationSchema = yup.object().shape({
   name: yup.string().required().trim(),
   price: yup.number().required(),
@@ -21,9 +14,11 @@ const validationSchema = yup.object().shape({
   pictures: yup.array(yup.mixed()).required(),
   cuisine: yup.number(),
   ingredients: yup.array(yup.number()),
+  menu: yup.string().uuid().required(),
 });
 
 export default function NewDish() {
+  const router = useRouter();
   const [cuisines, setCuisines] = React.useState(null);
   const [previewPictures, setPreviewPictures] = React.useState(null);
   const readFile = file => {
@@ -57,7 +52,15 @@ export default function NewDish() {
 
   return (
     <Formik
-      initialValues={initialValues}
+      initialValues={{
+        name: "",
+        price: "",
+        description: "",
+        pictures: [],
+        cuisine: "",
+        ingredients: [],
+        menu: router.query.id,
+      }}
       validationSchema={validationSchema}
       onSubmit={(values, actions) => {
         console.log(`values: `, values);
@@ -67,6 +70,7 @@ export default function NewDish() {
       {({ isSubmitting, setFieldValue, values }) =>
         console.log(`values: `, values) || (
           <Form>
+            <Field type="hidden" name="menu" />
             <div>
               {previewPictures && previewPictures.length ? (
                 <PicturesSlider pictures={previewPictures} />

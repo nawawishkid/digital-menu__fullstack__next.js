@@ -1,10 +1,19 @@
 import React from "react";
-import Button from "../../../components/button";
-import Link from "../../../components/link";
-import { findRestaurantById } from "../../../services/restaurants";
+import Link from "../../components/link";
+import Button from "../../components/button";
+import { findRestaurantById } from "../../services/restaurants";
+import Axios from "axios";
 
 const NoDish = ({ restaurantId }) => {
-  return (
+  const [menu, setMenu] = React.useState(null);
+
+  React.useEffect(() => {
+    Axios.get(`/api/restaurants/${restaurantId}/menus`, { timeout: 3000 })
+      .then(res => setMenu(res.data.menus[0]))
+      .catch(console.log);
+  }, []);
+
+  return menu ? (
     <div>
       <div
         className="rounded-full bg-gray-500 mb-8"
@@ -12,10 +21,12 @@ const NoDish = ({ restaurantId }) => {
       ></div>
       <p>You currently have no dish.</p>
       <p className="mb-8">Create one below</p>
-      <Link href={`/restaurants/${restaurantId}/new-dish`}>
+      <Link href={`/@${restaurantId}/menus/${menu.id}/new-dish`}>
         <Button>Create a dish</Button>
       </Link>
     </div>
+  ) : (
+    <p>Loading...</p>
   );
 };
 
@@ -45,7 +56,7 @@ export default function Restaurant({ restaurant }) {
 }
 
 export async function getServerSideProps({ params }) {
-  let [restaurant] = await findRestaurantById(params.id);
+  let restaurant = await findRestaurantById(params.restaurantId.slice(1));
 
   if (restaurant) {
     restaurant = JSON.parse(JSON.stringify(restaurant));
