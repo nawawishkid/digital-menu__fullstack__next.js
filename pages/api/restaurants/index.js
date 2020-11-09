@@ -1,17 +1,17 @@
 import S3 from "aws-sdk/clients/s3";
 import { promises as fs } from "fs";
 import * as yup from "yup";
-import nc from "../../helpers/next-connect";
-import authenticate from "../../middlewares/authenticate";
-import multipartFormData from "../../middlewares/multipart-form-data";
-import validate from "../../middlewares/validate";
-import { createMenu } from "../../services/menus";
+import nc from "../../../helpers/next-connect";
+import authenticate from "../../../middlewares/authenticate";
+import multipartFormData from "../../../middlewares/multipart-form-data";
+import validate from "../../../middlewares/validate";
+import { createMenu } from "../../../services/menus";
 import {
   createRestaurant,
   findRestaurantByOwnerId,
   updateRestaurantById,
-} from "../../services/restaurants";
-import { addFile } from "../../services/files";
+} from "../../../services/restaurants";
+import { addFile } from "../../../services/files";
 
 const getRestaurants = async (req, res) => {
   const restaurants = await findRestaurantByOwnerId(req.user.id);
