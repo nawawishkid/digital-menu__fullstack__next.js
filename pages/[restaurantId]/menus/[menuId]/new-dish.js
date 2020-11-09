@@ -135,16 +135,16 @@ export default function NewDish() {
               placeholder="Description here..."
               className="w-full"
             />
-            <div>
-              <p className="font-bold mb-2">Cuisine</p>
-              <Field name="cuisine" component="select">
-                {cuisines === null
-                  ? `Loading...`
-                  : cuisines.map(cuisine => (
-                      <option value={cuisine.id}>{cuisine.name}</option>
-                    ))}
-              </Field>
-            </div>
+            {cuisines === null ? null : (
+              <div>
+                <p className="font-bold mb-2">Cuisine</p>
+                <Field name="cuisine" component="select">
+                  {cuisines.map(cuisine => (
+                    <option value={cuisine.id}>{cuisine.name}</option>
+                  ))}
+                </Field>
+              </div>
+            )}
             <div>
               <p className="font-bold mb-2">Ingredients</p>
               <Field
