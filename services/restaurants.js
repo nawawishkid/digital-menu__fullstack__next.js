@@ -17,7 +17,10 @@ export const findRestaurants = (select = null) => {
   return knex("restaurants").select(select);
 };
 export const findRestaurantById = id =>
-  baseSelectStatement.where("r.id", id).then(transformJoinedResultMultiple);
+  baseSelectStatement
+    .where("r.id", id)
+    .then(transformJoinedResultMultiple)
+    .then(results => results[0]);
 export const findRestaurantByOwnerId = ownerId =>
   baseSelectStatement
     .where("r.owner", ownerId)
