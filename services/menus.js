@@ -5,9 +5,13 @@ export const findMenus = (select = null) => {
   return knex("menus").select(select);
 };
 
-export const findMenuById = id => knex("menus").select().where("id", id);
-export const findMenuByOwnerId = ownerId =>
-  knex("menus").select().where("owner", ownerId);
+export const findMenuById = id =>
+  knex("menus")
+    .select()
+    .where("id", id)
+    .then(results => results[0]);
+export const findMenusByOwnerId = ownerId =>
+  knex("menus").select().where("ownedBy", ownerId);
 export const createMenu = data => {
   const id = nanoid();
 
