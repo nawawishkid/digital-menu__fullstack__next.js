@@ -33,6 +33,25 @@ const initialValues = {
   menu: undefined,
   restaurantId: undefined,
 };
+const handleSubmit = router => values => {
+  console.log(`submitted values: `, values);
+  const formData = new FormData();
+
+  Object.entries(values).forEach(([key, value]) => {
+    if (Array.isArray(value)) {
+      value.forEach(v => formData.append(key, v));
+    } else {
+      formData.append(key, value);
+    }
+  });
+
+  return Axios.post(`/api/dishes`, formData, { timeout: 3000 })
+    .then(res => {
+      console.log(`res.data: `, res.data);
+      router.push("/" + router.query.restaurantId);
+    })
+    .catch(err => console.log(`err: `, err.response ? err.response.data : err));
+};
 
 export default function NewDish() {
   const router = useRouter();
@@ -82,26 +101,7 @@ export default function NewDish() {
     <Formik
       initialValues={initialValues}
       validationSchema={validationSchema}
-      onSubmit={values => {
-        console.log(`submitted values: `, values);
-        const formData = new FormData();
-
-        Object.entries(values).forEach(([key, value]) => {
-          if (Array.isArray(value)) {
-            value.forEach(v => formData.append(key, v));
-          } else {
-            formData.append(key, value);
-          }
-        });
-
-        return Axios.post(`/api/dishes`, formData, { timeout: 3000 })
-          .then(res => {
-            console.log(`res.data: `, res.data);
-          })
-          .catch(err =>
-            console.log(`err: `, err.response ? err.response.data : err)
-          );
-      }}
+      onSubmit={handleSubmit(router)}
     >
       {({ isSubmitting, setFieldValue }) => (
         <Form>
