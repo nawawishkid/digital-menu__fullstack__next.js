@@ -25,6 +25,7 @@
     "nanoid": "^3.1.16",
     "next": "10.0.1",
     "next-connect": "^0.9.1",
+    "node-sagas": "https://github.com/nawawishkid/node-sagas.git#feat-step-error",
     "random-number": "^0.0.9",
     "react": "17.0.1",
     "react-dom": "17.0.1",
