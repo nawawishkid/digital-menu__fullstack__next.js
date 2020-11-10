@@ -4,7 +4,7 @@ import Button from "../../components/button";
 import { findRestaurantById } from "../../services/restaurants";
 import Axios from "axios";
 
-const NoDish = ({ restaurantId }) => {
+const useMenu = restaurantId => {
   const [menu, setMenu] = React.useState(null);
 
   React.useEffect(() => {
@@ -12,6 +12,25 @@ const NoDish = ({ restaurantId }) => {
       .then(res => setMenu(res.data.menus[0]))
       .catch(console.log);
   }, []);
+
+  return [menu, setMenu];
+};
+const useDishes = menuId => {
+  const [dishes, setDishes] = React.useState(null);
+
+  React.useEffect(() => {
+    if (!menuId) return;
+
+    Axios.get(`/api/dishes?menuId=${menuId}`)
+      .then(res => setDishes(res.data.dishes))
+      .catch(console.log);
+  }, [menuId]);
+
+  return [dishes, setDishes];
+};
+
+const NoDish = ({ restaurantId }) => {
+  const [menu] = useMenu(restaurantId);
 
   return menu ? (
     <div>
@@ -30,7 +49,35 @@ const NoDish = ({ restaurantId }) => {
   );
 };
 
+const DishCard = ({ id, name, price, pictures, restaurantId }) => {
+  const pagePath = `/@${restaurantId}/dishes/${id}`;
+
+  return (
+    <div
+      className="rounded bg-white shadow-md w-1/2 mb-4"
+      style={{ width: `calc(50% - 4px)` }}
+    >
+      <Link href={pagePath}>
+        <img src={pictures[0]} className="w-full" style={{ height: `124px` }} />
+      </Link>
+      <div className="p-2">
+        <p className="bold">
+          <Link href={pagePath} className="no-underline">
+            {name}
+          </Link>
+        </p>
+        <p>
+          <small>฿ {price}</small>
+        </p>
+      </div>
+    </div>
+  );
+};
+
 export default function Restaurant({ restaurant }) {
+  const [menu] = useMenu(restaurant.id);
+  const [dishes] = useDishes(menu && menu.id);
+
   return restaurant ? (
     <div className="p-4">
       <center className="p-2 mb-16">
@@ -42,9 +89,11 @@ export default function Restaurant({ restaurant }) {
         <h1 className="mb-4">{restaurant.name}</h1>
         <p>{restaurant.bio || <span className="text-gray-400">No bio</span>}</p>
       </center>
-      <div>
-        {restaurant.dishes ? (
-          restaurant.dishes.map(dish => <p>{dish.name}</p>)
+      <div className="flex flex-wrap justify-between">
+        {dishes ? (
+          dishes.map(dish => (
+            <DishCard {...dish} key={dish.id} restaurantId={restaurant.id} />
+          ))
         ) : (
           <center>
             <NoDish restaurantId={restaurant.id} />
