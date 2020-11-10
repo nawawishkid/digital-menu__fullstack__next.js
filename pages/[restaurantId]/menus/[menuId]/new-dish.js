@@ -13,8 +13,12 @@ const validationSchema = yup.object().shape({
   description: yup.string().trim(),
   pictures: yup.array(yup.mixed()).required(),
   cuisine: yup.number(),
-  ingredients: yup.array(yup.number()),
+  ingredients: yup.array(yup.mixed().oneOf([yup.number(), yup.string()])),
   menu: yup
+    .string()
+    .required()
+    .matches(/^[a-zA-Z0-9]{8}$/),
+  restaurantId: yup
     .string()
     .required()
     .matches(/^[a-zA-Z0-9]{8}$/),
@@ -27,6 +31,7 @@ const initialValues = {
   cuisine: "",
   ingredients: [],
   menu: undefined,
+  restaurantId: undefined,
 };
 
 export default function NewDish() {
@@ -40,11 +45,14 @@ export default function NewDish() {
       .catch(console.log);
   }, []);
 
-  const { menuId } = router.query;
+  const { menuId, restaurantId } = router.query;
 
-  if (!menuId) return <p>Loading...</p>;
+  console.log(`router.query: `, router.query);
+
+  if (!menuId || !restaurantId) return <p>Loading...</p>;
 
   initialValues.menu = menuId;
+  initialValues.restaurantId = restaurantId.slice(1);
 
   const readFile = file => {
     const fr = new FileReader();
@@ -67,8 +75,7 @@ export default function NewDish() {
   };
 
   console.log(`cuisines: `, cuisines);
-  console.log(`previewPictures: `, previewPictures);
-  console.log(`menuId: `, router.query.menuId);
+  // console.log(`previewPictures: `, previewPictures);
   console.log(`initialValues: `, initialValues);
 
   return (
@@ -77,6 +84,23 @@ export default function NewDish() {
       validationSchema={validationSchema}
       onSubmit={values => {
         console.log(`submitted values: `, values);
+        const formData = new FormData();
+
+        Object.entries(values).forEach(([key, value]) => {
+          if (Array.isArray(value)) {
+            value.forEach(v => formData.append(key, v));
+          } else {
+            formData.append(key, value);
+          }
+        });
+
+        return Axios.post(`/api/dishes`, formData, { timeout: 3000 })
+          .then(res => {
+            console.log(`res.data: `, res.data);
+          })
+          .catch(err =>
+            console.log(`err: `, err.response ? err.response.data : err)
+          );
       }}
     >
       {({ isSubmitting, setFieldValue }) => (
