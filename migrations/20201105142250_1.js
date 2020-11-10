@@ -69,7 +69,7 @@ exports.up = function (knex) {
       table.string("name", 255).notNullable().index();
       table.text("description");
       table.float("price").notNullable();
-      table.integer("cuisine").unsigned().notNullable();
+      table.integer("cuisine").unsigned();
       table.uuid("menu").notNullable();
 
       table.foreign("cuisine").references("id").inTable("cuisines");
