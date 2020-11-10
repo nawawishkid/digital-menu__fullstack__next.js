@@ -55,6 +55,10 @@ export default class DishesService {
     this.dishPictureRepository = dishPictureRepository;
   }
 
+  findDishesByMenuId(menuId) {
+    return this.dishRepository.findByMenuId(menuId);
+  }
+
   async createDish(data) {
     const validatedData = await this.constructor.dishCreationValidator.validate(
       data
@@ -95,7 +99,7 @@ export default class DishesService {
       .invoke(
         sagaCallback(async params => {
           if (params.data.pictures.length) {
-            params.uploadedFilesInfo = await this.uploadDishPictureFiles(
+            params.uploadedFilesInfo = await this._uploadDishPictureFiles(
               params.createdDishId,
               params.data.userId,
               ...params.data.pictures
@@ -108,7 +112,7 @@ export default class DishesService {
           if (params.uploadedFilesInfo) {
             // Remove files from s3
             console.log(`Remove files from s3`);
-            const results = await this.removeDishPictureFilesOnS3(
+            const results = await this._removeDishPictureFilesOnS3(
               params.createdDishId
             );
             console.log(`remove results: `, results);
@@ -119,7 +123,7 @@ export default class DishesService {
       .invoke(
         sagaCallback(async params => {
           if (params.uploadedFilesInfo) {
-            params.savedFilesId = await this.savePictureFiles(
+            params.savedFilesId = await this._savePictureFiles(
               params.uploadedFilesInfo
             );
           }
@@ -139,7 +143,7 @@ export default class DishesService {
       .step(`Link saved picture files id to dish id`)
       .invoke(
         sagaCallback(params => {
-          return this.linkSavedPictureFilesIdtoDishId(
+          return this._linkSavedPictureFilesIdtoDishId(
             params.createdDishId,
             params.savedFilesId
           );
@@ -180,7 +184,7 @@ export default class DishesService {
    * @param  {...Array<File>} files
    * @returns Array<Promise<UploadInfo>>
    */
-  async uploadDishPictureFiles(dishId, userId, ...files) {
+  async _uploadDishPictureFiles(dishId, userId, ...files) {
     const dish = await this.dishRepository.findById(dishId);
 
     if (!dish) throw new Error(`Dish '${dishId}' could not be found`);
@@ -197,7 +201,7 @@ export default class DishesService {
       const s3Params = {
         Bucket: process.env.AWS_BUCKET_NAME,
         ACL: "public-read",
-        Key: this.composeDishPictureS3FileKey(dishId, fileName),
+        Key: this._composeDishPictureS3FileKey(dishId, fileName),
         Body: await fs.readFile(picture.path),
         ContentType: picture.type,
       };
@@ -217,7 +221,7 @@ export default class DishesService {
     return Promise.all(uploadedFileInfoPromises);
   }
 
-  composeDishPictureS3FileKey(dishId, fileName) {
+  _composeDishPictureS3FileKey(dishId, fileName) {
     return `dishes/${dishId}/${fileName}`;
   }
 
@@ -225,7 +229,7 @@ export default class DishesService {
    *
    * @returns Array<Number> Array of file ID
    */
-  savePictureFiles(pictureFiles) {
+  _savePictureFiles(pictureFiles) {
     const savePromises = pictureFiles.map(fileInfo =>
       this.fileRepository.add(fileInfo)
     );
@@ -233,7 +237,7 @@ export default class DishesService {
     return Promise.all(savePromises);
   }
 
-  linkSavedPictureFilesIdtoDishId(dishId, savedPicturesId) {
+  _linkSavedPictureFilesIdtoDishId(dishId, savedPicturesId) {
     const dishPictures = savedPicturesId.map(pid => ({
       dish: dishId,
       file: pid,
@@ -242,15 +246,15 @@ export default class DishesService {
     return this.dishPictureRepository.add(dishPictures);
   }
 
-  getDishPictures(dishId) {
+  _getDishPictures(dishId) {
     return this.dishPictureRepository
       .find()
       .where("dish", dishId)
       .then(this.dishPictureRepository.transform);
   }
 
-  async removeDishPictureFilesOnS3(dishId) {
-    const files = await this.getDishPictures(dishId).then(dps =>
+  async _removeDishPictureFilesOnS3(dishId) {
+    const files = await this._getDishPictures(dishId).then(dps =>
       dps.map(dp => dp.file)
     );
 
@@ -261,7 +265,7 @@ export default class DishesService {
     const deleteFilePromises = files.map(file => {
       const params = {
         Bucket: process.env.AWS_BUCKET_NAME,
-        Key: this.composeDishPictureS3FileKey(dishId, file.name),
+        Key: this._composeDishPictureS3FileKey(dishId, file.name),
       };
 
       return this.s3.deleteObject(params).promise();

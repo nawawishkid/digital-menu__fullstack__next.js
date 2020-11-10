@@ -6,7 +6,13 @@ import multipartFormData from "../../middlewares/multipart-form-data";
 import validate from "../../middlewares/validate";
 import getDishesServiceInstance from "../../helpers/get-dishes-service-instance";
 
-const getDishes = (req, res) => {};
+const getDishes = async (req, res) => {
+  const { menuId } = req.query;
+  const dishesService = getDishesServiceInstance();
+  const dishes = await dishesService.findDishesByMenuId(menuId);
+
+  res.status(200).json({ dishes });
+};
 
 const createDish = async (req, res, next) => {
   const data = {
@@ -40,7 +46,21 @@ const createDish = async (req, res, next) => {
 
 export default nc()
   .use(authenticate())
-  .get(getDishes)
+  .get(
+    validate(
+      "query",
+      yup
+        .object()
+        .shape({
+          menuId: yup
+            .string()
+            .required()
+            .matches(/^[a-zA-Z0-9]{8}$/),
+        })
+        .required()
+    ),
+    getDishes
+  )
   .post(
     multipartFormData(),
     validate(
