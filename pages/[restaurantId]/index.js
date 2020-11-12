@@ -74,6 +74,10 @@ const DishCard = ({ id, name, price, pictures, restaurantId }) => {
   );
 };
 
+const RestaurantNotFound = () => {
+  return <p>Restaurant not found :p</p>;
+};
+
 export default function Restaurant({ restaurant }) {
   const [menu] = useMenu(restaurant.id);
   const [dishes] = useDishes(menu && menu.id);
@@ -101,7 +105,9 @@ export default function Restaurant({ restaurant }) {
         )}
       </div>
     </div>
-  ) : null;
+  ) : (
+    <RestaurantNotFound />
+  );
 }
 
 export async function getServerSideProps({ params }) {
