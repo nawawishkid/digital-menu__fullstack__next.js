@@ -22,7 +22,9 @@ const useDishes = menuId => {
     if (!menuId) return;
 
     Axios.get(`/api/dishes?menuId=${menuId}`)
-      .then(res => setDishes(res.data.dishes))
+      .then(res =>
+        setDishes(Array.isArray(res.data.dishes) ? res.data.dishes : [])
+      )
       .catch(console.log);
   }, [menuId]);
 
@@ -78,11 +80,30 @@ const RestaurantNotFound = () => {
   return <p>Restaurant not found :p</p>;
 };
 
-export default function Restaurant({ restaurant }) {
+const RestaurantProfile = ({ restaurant }) => {
   const [menu] = useMenu(restaurant.id);
   const [dishes] = useDishes(menu && menu.id);
+  let dishResult;
 
-  return restaurant ? (
+  if (dishes === null) {
+    dishResult = <p>Loading...</p>;
+  } else {
+    dishResult = (
+      <center>
+        {dishes.length ? (
+          <div className="flex flex-wrap justify-between">
+            {dishes.map(dish => (
+              <DishCard {...dish} key={dish.id} restaurantId={restaurant.id} />
+            ))}
+          </div>
+        ) : (
+          <NoDish restaurantId={restaurant.id} />
+        )}
+      </center>
+    );
+  }
+
+  return (
     <div className="p-4">
       <center className="p-2 mb-16">
         <img
@@ -93,18 +114,14 @@ export default function Restaurant({ restaurant }) {
         <h1 className="mb-4">{restaurant.name}</h1>
         <p>{restaurant.bio || <span className="text-gray-400">No bio</span>}</p>
       </center>
-      <div className="flex flex-wrap justify-between">
-        {dishes ? (
-          dishes.map(dish => (
-            <DishCard {...dish} key={dish.id} restaurantId={restaurant.id} />
-          ))
-        ) : (
-          <center>
-            <NoDish restaurantId={restaurant.id} />
-          </center>
-        )}
-      </div>
+      {dishResult}
     </div>
+  );
+};
+
+export default function Restaurant({ restaurant }) {
+  return restaurant ? (
+    <RestaurantProfile restaurant={restaurant} />
   ) : (
     <RestaurantNotFound />
   );
