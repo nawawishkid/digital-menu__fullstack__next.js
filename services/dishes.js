@@ -48,11 +48,20 @@ export default class DishesService {
   static dishPicturesValidator = dishPicturesValidator;
   static dishCreationValidator = dishCreationValidator;
 
-  constructor(dishRepository, fileRepository, s3, dishPictureRepository) {
+  constructor(
+    dishRepository,
+    fileRepository,
+    s3,
+    dishPictureRepository,
+    dishIngredientRepository,
+    restaurantIngredientRepository
+  ) {
     this.dishRepository = dishRepository;
     this.fileRepository = fileRepository;
     this.s3 = s3;
     this.dishPictureRepository = dishPictureRepository;
+    this.dishIngredientRepository = dishIngredientRepository;
+    this.restaurantIngredientRepository = restaurantIngredientRepository;
   }
 
   findDishById(dishId) {
@@ -156,6 +165,95 @@ export default class DishesService {
             params.savedFilesId
           );
         })
+      )
+      .step(`Add ingredients`)
+      .invoke(
+        sagaCallback(async params => {
+          if (!params.ingredients.length) return;
+
+          console.log(
+            `Separating new ingredients from existing ingredients...`
+          );
+          const [
+            existingIngredients,
+            newIngredients,
+          ] = params.ingredients.reduce(
+            (arr, ingredient) => {
+              const index = typeof ingredient === "number" ? 0 : 1;
+
+              arr[index].push(ingredient);
+
+              return arr;
+            },
+            [[], []]
+          );
+          console.log(`existing ingredients: `, existingIngredients);
+          console.log(`new ingredients: `, newIngredients);
+          console.log(`done\n\n`);
+
+          let newInsertedRestaurantIngredientIds = [];
+
+          if (newIngredients.length) {
+            const newRestaurantIngredients = newIngredients.map(ingredient => ({
+              restaurant: restaurantId,
+              name: ingredient,
+            }));
+            console.log(`newRestaurantIngredients: `, newRestaurantIngredients);
+            console.log(
+              `storing new ingredients into the 'restaurant_ingredients' table...`
+            );
+
+            if (newRestaurantIngredients.length) {
+              newInsertedRestaurantIngredientIds = await this.restaurantIngredientRepository.add(
+                newRestaurantIngredients
+              );
+              params.newRestaurantIngredientIds = newInsertedRestaurantIngredientIds;
+            }
+            console.log(
+              `newInsertedRestaurantIngredientIds: `,
+              newInsertedRestaurantIngredientIds
+            );
+          }
+
+          const allIngredientsId = [
+            ...existingIngredients,
+            ...newInsertedRestaurantIngredientIds,
+          ];
+          console.log(`allIngredientIds: `, allIngredientsId);
+          const newDishIngredients = allIngredientsId.map(iid => ({
+            dish: createdDishId,
+            ingredient: iid,
+          }));
+          console.log(`newDishIngredients: `, newDishIngredients);
+
+          console.log(`Storing 'dish_ingredients'`);
+          const newInsertedDishIngredientIds = await this.dishIngredientRepository.add(
+            newDishIngredients
+          );
+          params.newInsertedDishIngredientIds = newInsertedDishIngredientIds;
+          console.log(
+            `newInsertedDishIngredientIds: `,
+            newInsertedDishIngredientIds
+          );
+          console.log(`done\n\n`);
+        })
+      )
+      .withCompensation(
+        sagaCallback(async params => {
+          if (params.newInsertedRestaurantIngredientIds) {
+            this.restaurantIngredientRepository.remove(
+              "id",
+              params.newInsertedRestaurantIngredientIds
+            );
+          }
+
+          if (params.newInsertedDishIngredientIds) {
+            this.dishIngredientRepository.remove(
+              "id",
+              params.newInsertedDishIngredientIds
+            );
+          }
+        }, false)
       )
       .build();
 
