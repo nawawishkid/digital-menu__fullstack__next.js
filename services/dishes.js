@@ -55,6 +55,14 @@ export default class DishesService {
     this.dishPictureRepository = dishPictureRepository;
   }
 
+  findDishById(dishId) {
+    return this.dishRepository
+      .findById(dishId)
+      .then(
+        this.dishRepository.constructor.transform.bind(this.dishRepository)
+      );
+  }
+
   findDishesByMenuId(menuId) {
     return this.dishRepository.findByMenuId(menuId);
   }
