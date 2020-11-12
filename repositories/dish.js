@@ -58,6 +58,8 @@ export default class DishRepository extends Repository {
   }
 
   static transform(result) {
+    if (!result) return result;
+
     if (Array.isArray(result)) {
       return Object.values(
         result.map(this.constructor.transform).reduce((obj, row) => {
