@@ -1,7 +1,6 @@
 import React from "react";
 import Link from "../../components/link";
 import Button from "../../components/button";
-import { findRestaurantById } from "../../services/restaurants";
 import Axios from "axios";
 
 const useMenu = restaurantId => {
@@ -120,6 +119,7 @@ const RestaurantProfile = ({ restaurant }) => {
 };
 
 export default function Restaurant({ restaurant }) {
+  console.log(`rest: `, restaurant);
   return restaurant ? (
     <RestaurantProfile restaurant={restaurant} />
   ) : (
@@ -128,7 +128,12 @@ export default function Restaurant({ restaurant }) {
 }
 
 export async function getServerSideProps({ params }) {
-  let restaurant = await findRestaurantById(params.restaurantId.slice(1));
+  const getRestaurantsServiceInstance = require("../../helpers/get-restaurants-service-instance")
+    .default;
+  const restaurantsService = getRestaurantsServiceInstance();
+  let restaurant = await restaurantsService.findRestaurantById(
+    params.restaurantId.slice(1)
+  );
 
   if (restaurant) {
     restaurant = JSON.parse(JSON.stringify(restaurant));
