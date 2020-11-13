@@ -2,11 +2,12 @@ import * as yup from "yup";
 import nc from "../../../../helpers/next-connect";
 import validate from "../../../../middlewares/validate";
 import authenticate from "../../../../middlewares/authenticate";
-import { findRestaurantById } from "../../../../services/restaurants";
+import getRestaurantsServiceInstance from "../../../../helpers/get-restaurants-service-instance";
 
 const getRestaurantById = async (req, res, next) => {
   const { restaurantId } = req.query;
-  const restaurant = await findRestaurantById(restaurantId);
+  const restaurantsService = getRestaurantsServiceInstance();
+  const restaurant = await restaurantsService.findRestaurantById(restaurantId);
 
   if (!restaurant)
     return next({
