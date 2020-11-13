@@ -21,8 +21,6 @@ const createDish = async (req, res, next) => {
     userId: req.user.id,
   };
 
-  console.log(`data: `, data);
-
   try {
     const dishesService = getDishesServiceInstance();
     const createdDishId = await dishesService.createDish(data);
@@ -33,6 +31,8 @@ const createDish = async (req, res, next) => {
       /**
        * @TODO Use http-status-code library to avoid magic value
        * @see https://github.com/prettymuchbryce/http-status-codes
+       *
+       * @TODO It's not always only duplicated dish name but also duplicated restaurant's ingredient name
        */
       next({
         statusCode: 409,
@@ -99,7 +99,15 @@ export default nc()
             return cv;
           })
           .nullable(),
-        ingredients: yup.array(yup.number()),
+        "ingredients[]": yup.array(
+          yup
+            .mixed()
+            .test(
+              `isStringOrInteger`,
+              `Ingredient must be either string or integer`,
+              value => typeof value === "string" || Number.isInteger(value)
+            )
+        ),
       })
     ),
     createDish

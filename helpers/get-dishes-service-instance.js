@@ -4,6 +4,8 @@ import DishRepository from "../repositories/dish";
 import FileRepository from "../repositories/file";
 import DishPictureRepository from "../repositories/dish-picture";
 import knex from "../knex";
+import RestaurantIngredientRepository from "../repositories/restaurant-ingredient";
+import DishIngredientRepository from "../repositories/dish-ingredient";
 
 let dishesService;
 
@@ -18,7 +20,9 @@ export default function getDishesServiceInstance() {
           secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
         },
       }),
-      new DishPictureRepository(knex)
+      new DishPictureRepository(knex),
+      new DishIngredientRepository(knex),
+      new RestaurantIngredientRepository(knex)
     );
   }
 

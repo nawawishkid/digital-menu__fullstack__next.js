@@ -5,6 +5,7 @@ import React from "react";
 import Axios from "axios";
 import Button from "../../../../components/button";
 import Field, { BaseField } from "../../../../components/field";
+import IngredientsField from "../../../../components/ingredient-field";
 
 const PicturesSlider = () => "this is pictures slider";
 const validationSchema = yup.object().shape({
@@ -13,7 +14,15 @@ const validationSchema = yup.object().shape({
   description: yup.string().trim(),
   pictures: yup.array(yup.mixed()).required(),
   cuisine: yup.number(),
-  ingredients: yup.array(yup.mixed().oneOf([yup.number(), yup.string()])),
+  ingredients: yup.array(
+    yup
+      .mixed()
+      .test(
+        `isStringOrInteger`,
+        `Ingredient must be either string or integer`,
+        value => typeof value === "string" || Number.isInteger(value)
+      )
+  ),
   menu: yup
     .string()
     .required()
@@ -39,7 +48,9 @@ const handleSubmit = router => values => {
 
   Object.entries(values).forEach(([key, value]) => {
     if (Array.isArray(value)) {
-      value.forEach(v => formData.append(key, v));
+      value.forEach(v =>
+        formData.append(key === "ingredients" ? "ingredients[]" : key, v)
+      );
     } else {
       formData.append(key, value);
     }
@@ -103,89 +114,90 @@ export default function NewDish() {
       validationSchema={validationSchema}
       onSubmit={handleSubmit(router)}
     >
-      {({ isSubmitting, setFieldValue }) => (
-        <Form>
-          <div>
-            {previewPictures && previewPictures.length ? (
-              <PicturesSlider pictures={previewPictures} />
-            ) : (
-              <label
-                htmlFor="pictures"
-                className="w-full flex justify-center items-center bg-gray-200 text-gray-500"
-                style={{ height: `240px` }}
-              >
-                Tap here to add picture
-              </label>
-            )}
-            <BaseField name="pictures">
-              <input
-                type="file"
-                name="pictures"
-                id="pictures"
-                accept="image/*"
-                multiple
-                className="hidden"
-                onChange={e => {
-                  filesToPriviewPictures(e);
-                  setFieldValue("pictures", Object.values(e.target.files));
-                }}
-              />
-            </BaseField>
-          </div>
-          <div className="p-4">
-            <BaseField name="name">
-              <h1>
-                <FormikField
-                  type="text"
-                  name="name"
-                  placeholder="Name here"
-                  className="w-full"
-                />
-              </h1>
-            </BaseField>
-            <BaseField name="price">
-              <h2>
-                ฿{" "}
-                <FormikField
-                  type="number"
-                  name="price"
-                  placeholder="Price here"
-                />
-              </h2>
-            </BaseField>
-            <Field
-              name="description"
-              component="textarea"
-              placeholder="Description here..."
-              className="w-full"
-            />
-            {cuisines === null ? null : (
-              <div>
-                <p className="font-bold mb-2">Cuisine</p>
-                <Field name="cuisine" component="select">
-                  {cuisines.map(cuisine => (
-                    <option value={cuisine.id}>{cuisine.name}</option>
-                  ))}
-                </Field>
-              </div>
-            )}
+      {({ isSubmitting, setFieldValue, values }) =>
+        console.log(`values: `, values) || (
+          <Form>
             <div>
-              <p className="font-bold mb-2">Ingredients</p>
+              {previewPictures && previewPictures.length ? (
+                <PicturesSlider pictures={previewPictures} />
+              ) : (
+                <label
+                  htmlFor="pictures"
+                  className="w-full flex justify-center items-center bg-gray-200 text-gray-500"
+                  style={{ height: `240px` }}
+                >
+                  Tap here to add picture
+                </label>
+              )}
+              <BaseField name="pictures">
+                <input
+                  type="file"
+                  name="pictures"
+                  id="pictures"
+                  accept="image/*"
+                  multiple
+                  className="hidden"
+                  onChange={e => {
+                    filesToPriviewPictures(e);
+                    setFieldValue("pictures", Object.values(e.target.files));
+                  }}
+                />
+              </BaseField>
+            </div>
+            <div className="p-4">
+              <BaseField name="name">
+                <h1>
+                  <FormikField
+                    type="text"
+                    name="name"
+                    placeholder="Name here"
+                    className="w-full"
+                  />
+                </h1>
+              </BaseField>
+              <BaseField name="price">
+                <h2>
+                  ฿{" "}
+                  <FormikField
+                    type="number"
+                    name="price"
+                    placeholder="Price here"
+                  />
+                </h2>
+              </BaseField>
               <Field
-                type="text"
-                name="ingredients"
-                placeholder="Type your ingredient and type enter"
+                name="description"
+                component="textarea"
+                placeholder="Description here..."
                 className="w-full"
               />
+              {cuisines === null ? null : (
+                <div>
+                  <p className="font-bold mb-2">Cuisine</p>
+                  <Field name="cuisine" component="select">
+                    {cuisines.map(cuisine => (
+                      <option value={cuisine.id}>{cuisine.name}</option>
+                    ))}
+                  </Field>
+                </div>
+              )}
+              <div>
+                <p className="font-bold mb-2">Ingredients</p>
+                <IngredientsField
+                  ingredients={values.ingredients}
+                  isEditable
+                  name="ingredients"
+                />
+              </div>
+              <div className="flex justify-end mt-8">
+                <Button type="submit" disabled={isSubmitting}>
+                  Save
+                </Button>
+              </div>
             </div>
-            <div className="flex justify-end mt-8">
-              <Button type="submit" disabled={isSubmitting}>
-                Save
-              </Button>
-            </div>
-          </div>
-        </Form>
-      )}
+          </Form>
+        )
+      }
     </Formik>
   );
 }

@@ -28,7 +28,15 @@ const dishCreationValidator = yup.object().shape({
    * Accept both existing ingredient IDs (number) and new arbitrary ingredients (string)
    */
   ingredients: yup
-    .array(yup.mixed().oneOf([yup.number(), yup.string()]))
+    .array(
+      yup
+        .mixed()
+        .test(
+          `isStringOrInteger`,
+          `Ingredient must be either string or integer`,
+          value => typeof value === "string" || Number.isInteger(value)
+        )
+    )
     .nullable(),
   menu: yup
     .string()
@@ -87,6 +95,9 @@ export default class DishesService {
       userId,
       ...dishData
     } = validatedData;
+
+    console.log(`validatedData: `, validatedData);
+
     const sagaCallback = (callback, isInvocation = true) =>
       async function (params) {
         console.log(
@@ -149,7 +160,7 @@ export default class DishesService {
       .withCompensation(
         sagaCallback(params => {
           if (params.savedFilesId) {
-            const removePromises = params.savedFilesId.forEach(fid =>
+            const removePromises = params.savedFilesId.map(fid =>
               this.fileRepository.remove("id", fid)
             );
 
@@ -166,10 +177,18 @@ export default class DishesService {
           );
         })
       )
+      .withCompensation(
+        sagaCallback(params => {
+          return this.dishPictureRepository.remove(
+            "dish",
+            params.createdDishId
+          );
+        }, false)
+      )
       .step(`Add ingredients`)
       .invoke(
         sagaCallback(async params => {
-          if (!params.ingredients.length) return;
+          if (!params.data.ingredients.length) return;
 
           console.log(
             `Separating new ingredients from existing ingredients...`
@@ -177,7 +196,7 @@ export default class DishesService {
           const [
             existingIngredients,
             newIngredients,
-          ] = params.ingredients.reduce(
+          ] = params.data.ingredients.reduce(
             (arr, ingredient) => {
               const index = typeof ingredient === "number" ? 0 : 1;
 
@@ -221,7 +240,7 @@ export default class DishesService {
           ];
           console.log(`allIngredientIds: `, allIngredientsId);
           const newDishIngredients = allIngredientsId.map(iid => ({
-            dish: createdDishId,
+            dish: params.createdDishId,
             ingredient: iid,
           }));
           console.log(`newDishIngredients: `, newDishIngredients);
@@ -337,7 +356,7 @@ export default class DishesService {
    */
   _savePictureFiles(pictureFiles) {
     const savePromises = pictureFiles.map(fileInfo =>
-      this.fileRepository.add(fileInfo)
+      this.fileRepository.add(fileInfo).then(result => result[0])
     );
 
     return Promise.all(savePromises);

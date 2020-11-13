@@ -87,7 +87,7 @@ exports.up = function (knex) {
       table.primary(["role", "capability"]);
     })
     .createTable("restaurant_ingredients", table => {
-      table.increments("id");
+      table.uuid("id").notNullable().primary();
       table.uuid("restaurant").notNullable();
       table.string("name", 255).notNullable().index();
 
@@ -97,7 +97,7 @@ exports.up = function (knex) {
     })
     .createTable("dish_ingredients", table => {
       table.uuid("dish").notNullable();
-      table.integer("ingredient").unsigned().notNullable();
+      table.uuid("ingredient").notNullable();
 
       table.foreign("dish").references("id").inTable("dishes");
       table
