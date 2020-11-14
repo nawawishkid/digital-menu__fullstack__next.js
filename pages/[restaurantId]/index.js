@@ -3,6 +3,7 @@ import NavPath from "../../components/nav-path";
 import DishList from "../../components/dish-list";
 import useMenu from "../../hooks/use-menu";
 import useDishes from "../../hooks/use-dishes";
+import RestaurantProfileHeader from "../../components/restaurant-profile-header";
 
 const RestaurantNotFound = () => {
   return <p>Restaurant not found :p</p>;
@@ -17,18 +18,8 @@ const RestaurantProfile = ({ restaurant }) => {
       <NavPath
         path={[{ name: "Home", path: "/restaurants" }, `@${restaurant.id}`]}
       />
+      <RestaurantProfileHeader restaurant={restaurant} isEditable />
       <div className="p-4">
-        <center className="p-2 mb-16">
-          <img
-            src={restaurant.profilePicture}
-            className="rounded-full mb-4"
-            style={{ width: `100px`, height: `100px` }}
-          />
-          <h1 className="mb-4">{restaurant.name}</h1>
-          <p>
-            {restaurant.bio || <span className="text-gray-400">No bio</span>}
-          </p>
-        </center>
         {dishes === null ? (
           <p>Loading...</p>
         ) : (
