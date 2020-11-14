@@ -5,11 +5,8 @@ import Link from "./link";
 
 const EditRestaurantProfileIcon = () => {
   return (
-    <div
-      className="rounded-full bg-gray-400 flex justify-center items-center"
-      style={{ width: `16px`, height: `16px` }}
-    >
-      <Icon icon={bxsPencil} style={{ width: `8px`, height: `8px` }}>
+    <div className="rounded-full bg-gray-400 flex justify-center items-center w-8 h-8">
+      <Icon icon={bxsPencil} width="1em" height="1em">
         Edit icon
       </Icon>
     </div>
