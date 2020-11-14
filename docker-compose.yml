@@ -1,0 +1,15 @@
+version: "3.8"
+
+services:
+  mariadb:
+    image: mariadb
+    env_file: .env.docker
+
+  nextjs:
+    build: .
+    ports:
+      - 3000:3000
+    depends_on:
+      - mariadb
+    environment:
+      DB_URL: mariadb
