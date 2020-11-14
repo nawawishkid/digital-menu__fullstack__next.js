@@ -3,7 +3,7 @@ import * as yup from "yup";
 import { Form, Formik, Field as FormikField } from "formik";
 import React from "react";
 import Axios from "axios";
-import Button from "../../../../components/button";
+import FormAction from "../../../../components/form-action";
 import Field, { BaseField } from "../../../../components/field";
 import IngredientsField from "../../../../components/ingredient-field";
 
@@ -189,11 +189,7 @@ export default function NewDish() {
                   name="ingredients"
                 />
               </div>
-              <div className="flex justify-end mt-8">
-                <Button type="submit" disabled={isSubmitting}>
-                  Save
-                </Button>
-              </div>
+              <FormAction isSubmitting={isSubmitting} />
             </div>
           </Form>
         )

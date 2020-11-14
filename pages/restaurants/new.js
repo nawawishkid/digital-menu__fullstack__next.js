@@ -7,6 +7,7 @@ import React from "react";
 import { withAuth } from "../../components/auth";
 import Button from "../../components/button";
 import Field from "../../components/field";
+import FormAction from "../../components/form-action";
 
 const initialValues = { name: "", bio: "", profilePicture: "" };
 const validationSchema = yup.object().shape({
@@ -102,11 +103,7 @@ function NewRestaurant() {
                 placeholder="(optional) Your restaurant bio here..."
                 className="w-full"
               />
-              <div className="flex justify-end">
-                <Button type="submit" disabled={isSubmitting}>
-                  Save
-                </Button>
-              </div>
+              <FormAction isSubmitting={isSubmitting} />
             </Form>
           )}
         </Formik>
