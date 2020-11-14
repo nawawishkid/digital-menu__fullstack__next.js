@@ -1117,10 +1117,20 @@
   resolved "https://registry.yarnpkg.com/@hapi/hoek/-/hoek-9.1.0.tgz#6c9eafc78c1529248f8f4d92b0799a712b6052c6"
   integrity sha512-i9YbZPN3QgfighY/1X1Pu118VUz2Fmmhd6b2n0/O8YVgGGfw0FbUYoA97k7FkpGJ+pLCFEDLUmAPPV4D1kpeFw==
 
+"@iconify/icons-bi@^1.0.6":
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/@iconify/icons-bi/-/icons-bi-1.0.6.tgz#e4c788d81767fa7d9a1959cfdcba3f0925e529f0"
+  integrity sha512-0I/qawqj68W7T80srg0KxxsjgFnmAXsc2Y5lCJnz4y/tHCWFS0qy3q/habBfQtrmiXVKNul98nd2/fXy87iSww==
+
 "@iconify/icons-bx@^1.0.5":
   version "1.0.5"
   resolved "https://registry.yarnpkg.com/@iconify/icons-bx/-/icons-bx-1.0.5.tgz#d4e327943dae7f8af3ca52f9cf66eb7eed3446fb"
   integrity sha512-tKf5IOB8f1mtILlCPQ+nq12Mv6vUwwoM2iAWY3isuYEfuiGm1lIw3Q5Ccc3i5JveUKSdk2jNsRRhE9m+f8Qf+w==
+
+"@iconify/icons-ei@^1.0.5":
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/@iconify/icons-ei/-/icons-ei-1.0.5.tgz#c68026096c3888e7306f9b60b9d37d4cbb18fb8d"
+  integrity sha512-a8IeOtQi2ojzRKIVnKKLNIeUjw3wSrHtkSivGs9KwBveu+JiM0W4jxEZyakhhuv9D12VnplpBPv30mNMookJAw==
 
 "@iconify/react@^1.1.3":
   version "1.1.3"
