@@ -2,6 +2,7 @@ import React from "react";
 import Link from "../../components/link";
 import Button from "../../components/button";
 import Axios from "axios";
+import NavPath from "../../components/nav-path";
 
 const useMenu = restaurantId => {
   const [menu, setMenu] = React.useState(null);
@@ -103,18 +104,25 @@ const RestaurantProfile = ({ restaurant }) => {
   }
 
   return (
-    <div className="p-4">
-      <center className="p-2 mb-16">
-        <img
-          src={restaurant.profilePicture}
-          className="rounded-full mb-4"
-          style={{ width: `100px`, height: `100px` }}
-        />
-        <h1 className="mb-4">{restaurant.name}</h1>
-        <p>{restaurant.bio || <span className="text-gray-400">No bio</span>}</p>
-      </center>
-      {dishResult}
-    </div>
+    <>
+      <NavPath
+        path={[{ name: "Home", path: "/restaurants" }, `@${restaurant.id}`]}
+      />
+      <div className="p-4">
+        <center className="p-2 mb-16">
+          <img
+            src={restaurant.profilePicture}
+            className="rounded-full mb-4"
+            style={{ width: `100px`, height: `100px` }}
+          />
+          <h1 className="mb-4">{restaurant.name}</h1>
+          <p>
+            {restaurant.bio || <span className="text-gray-400">No bio</span>}
+          </p>
+        </center>
+        {dishResult}
+      </div>
+    </>
   );
 };
 
