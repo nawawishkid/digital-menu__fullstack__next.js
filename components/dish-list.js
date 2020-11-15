@@ -40,6 +40,6 @@ export default function DishList({ dishes, restaurantId }) {
       )}
     </div>
   ) : (
-    <NoDish restaurantId={restaurant.id} />
+    <NoDish restaurantId={restaurantId} />
   );
 }
