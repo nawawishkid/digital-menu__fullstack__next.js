@@ -109,10 +109,14 @@ export default class RestaurantsService {
         sagaCallback(async params => {
           if (!params.s3Info) throw new Error(`params.s3Info is required`);
 
-          params.profilePictureFileId = await this.saveProfilePictureFileInfoToDatabase(
+          const [
+            profilePictureFileId,
+          ] = await this.saveProfilePictureFileInfoToDatabase(
             params.restaurantData.owner,
             params.s3Info
           );
+
+          params.profilePictureFileId = profilePictureFileId;
         })
       )
       .withCompensation(
@@ -153,9 +157,13 @@ export default class RestaurantsService {
           if (!params.profilePictureFileId)
             throw new Error(`params.profilePictureFileId is required`);
 
-          return this.updateRestaurant(params.createdRestaurantId, {
-            profilePicture: params.profilePictureFileId,
-          });
+          return this.updateRestaurant(
+            params.createdRestaurantId,
+            params.restaurantData.owner,
+            {
+              profilePicture: params.profilePictureFileId,
+            }
+          );
         })
       )
       .build();
