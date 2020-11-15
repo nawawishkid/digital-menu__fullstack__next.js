@@ -56,7 +56,11 @@ exports.up = function (knex) {
       table.integer("createdBy").unsigned().notNullable();
       table.timestamp("createdAt").notNullable().defaultTo(knex.fn.now());
 
-      table.foreign("ownedBy").references("id").inTable("restaurants");
+      table
+        .foreign("ownedBy")
+        .references("id")
+        .inTable("restaurants")
+        .onDelete("CASCADE");
       table.foreign("createdBy").references("id").inTable("users");
     })
     .createTable("cuisines", table => {
