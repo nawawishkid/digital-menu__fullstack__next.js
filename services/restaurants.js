@@ -8,12 +8,13 @@ import {
   SagaStepInvocationFailed,
 } from "node-sagas";
 import jsFileValidator from "../yup-validators/js-file-validator";
+import formidableFileValidator from "../yup-validators/formidable-file-validator";
 
 const createRestaurantDTOValidator = yup.object().shape({
   name: yup.string().required().trim(),
   bio: yup.string().trim(),
   owner: yup.number().required().integer(),
-  profilePicture: fileValidator.required(),
+  profilePicture: formidableFileValidator.required(),
 });
 
 export default class RestaurantsService {
