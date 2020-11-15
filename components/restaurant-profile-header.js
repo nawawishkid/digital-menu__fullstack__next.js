@@ -21,7 +21,7 @@ export default function RestaurantProfileHeader({
     <div className="p-4">
       <center className="p-2 mb-16">
         <img
-          src={restaurant.profilePicture}
+          src={restaurant.profilePicture.path}
           className="rounded-full mb-4"
           style={{ width: `100px`, height: `100px` }}
         />

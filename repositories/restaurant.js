@@ -56,6 +56,6 @@ export default class RestaurantRepository extends Repository {
 
     delete users.createdAt;
 
-    return { ...restaurants, profilePicture: files.path, owner: users };
+    return { ...restaurants, profilePicture: files, owner: users };
   }
 }
