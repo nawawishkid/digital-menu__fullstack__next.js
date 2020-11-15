@@ -9,7 +9,11 @@ export default function DishCard({ id, name, price, pictures, restaurantId }) {
       style={{ width: `calc(50% - 4px)` }}
     >
       <Link href={pagePath}>
-        <img src={pictures[0]} className="w-full" style={{ height: `124px` }} />
+        <img
+          src={pictures[0].path}
+          className="w-full"
+          style={{ height: `124px` }}
+        />
       </Link>
       <div className="p-2">
         <p className="bold">
