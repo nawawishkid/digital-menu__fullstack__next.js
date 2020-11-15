@@ -6,6 +6,7 @@ import RestaurantProfilePictureField from "../../components/restaurant-profile-p
 import FormAction from "../../components/form-action";
 import updateRestaurantProfileValidator from "../../yup-validators/update-restaurant-profile-validator";
 import Field from "../../components/field";
+import Button from "../../components/button";
 
 const useRestaurant = restaurantId => {
   const [restaurant, setRestaurant] = React.useState(null);
@@ -83,6 +84,17 @@ export default function EditRestaurant() {
                 placeholder="(optional) Your restaurant bio here..."
                 className="w-full text-gray-600"
               />
+              <Button
+                type="button"
+                className="bg-red-400 text-red-700 font-bold"
+                onClick={() =>
+                  Axios.delete(`/api/restaurants/${restaurant.id}`)
+                    .then(() => router.push("/restaurants"))
+                    .catch(console.log)
+                }
+              >
+                Delete
+              </Button>
               <FormAction isSubmitting={isSubmitting} />
             </Form>
           )
