@@ -15,9 +15,7 @@ export default class Repository {
   }
 
   findById(id, select = null) {
-    return this.find(select)
-      .where(`${this.tableName}.id`, id)
-      .then(Repository.toOne);
+    return this.find(select).where(`${this.tableName}.id`, id);
   }
 
   add(data) {

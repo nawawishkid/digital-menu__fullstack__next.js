@@ -48,7 +48,8 @@ export default class DishRepository extends Repository {
         "dishes.price as price",
         "cuisines.name as cuisine",
         "dishes.menu as menuId",
-        "files.path as picture"
+        "files.path as path",
+        "files.id as id"
       )
       .innerJoin("menus", "menus.id", "dishes.menu")
       .leftJoin("cuisines", "cuisines.id", "dishes.cuisine")
@@ -58,6 +59,7 @@ export default class DishRepository extends Repository {
   }
 
   static transform(result) {
+    console.log(`result: `, result);
     if (!result) return result;
 
     if (Array.isArray(result)) {
@@ -79,7 +81,7 @@ export default class DishRepository extends Repository {
     return {
       ...result.dishes,
       cuisine: result.cuisines.cuisine,
-      pictures: result.files.picture ? [result.files.picture] : [],
+      pictures: result.files.id ? [result.files] : [],
     };
   }
 }
