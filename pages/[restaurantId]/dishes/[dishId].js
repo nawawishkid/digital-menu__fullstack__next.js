@@ -1,6 +1,7 @@
 import React from "react";
 import { useRouter } from "next/router";
 import NavPath from "../../../components/nav-path";
+import DishPicturesSlider from "../../../components/dish-pictures-slider";
 
 export default function DishProfile({ dish }) {
   const router = useRouter();
@@ -17,9 +18,7 @@ export default function DishProfile({ dish }) {
       {dish ? (
         <div>
           <div>
-            {dish.pictures.map((pic, index) => (
-              <img src={pic} key={index} />
-            ))}
+            <DishPicturesSlider pictures={dish.pictures} />
           </div>
           <div className="p-4">
             <div className="mb-4">
@@ -58,7 +57,7 @@ export async function getServerSideProps({ params }) {
   if (!dishId) {
     dish = null;
   } else {
-    const foundDish = await dishesService.findDishById(dishId);
+    const [foundDish] = await dishesService.findDishById(dishId);
 
     dish = !foundDish ? null : foundDish;
   }

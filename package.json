@@ -20,6 +20,7 @@
     "express": "^4.17.1",
     "formidable": "^2.0.0-canary.20200504.1",
     "formik": "^2.2.1",
+    "keen-slider": "^5.3.5",
     "knex": "^0.21.12",
     "lodash": "^4.17.20",
     "mysql": "^2.18.1",
