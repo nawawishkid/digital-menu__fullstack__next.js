@@ -27,7 +27,7 @@ const RestaurantItem = ({ name, profilePicture, id }) => {
     <Link href={`@${id}`} className="no-underline">
       <div className="rounded p-4 flex justify-start bg-white shadow-sm mb-4">
         <img
-          src={profilePicture}
+          src={profilePicture.path}
           className="rounded-full"
           style={{ width: `64px`, height: `64px` }}
         />
