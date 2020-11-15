@@ -7,22 +7,16 @@ import {
 } from "node-sagas";
 import * as yup from "yup";
 import { promises as fs } from "fs";
+import formidableFileValidator from "../yup-validators/formidable-file-validator";
 
-const fileValidator = yup.object().shape({
-  name: yup.string().required(),
-  path: yup.string().required(),
-  size: yup.number().required().integer(),
-  type: yup
-    .string()
-    .required()
-    .matches(/^image\/.+/),
-});
-const dishPicturesValidator = yup.array(fileValidator.required()).required();
+const dishPicturesValidator = yup
+  .array(formidableFileValidator.required())
+  .required();
 const dishCreationValidator = yup.object().shape({
   name: yup.string().required().trim(),
   price: yup.number().required(),
   description: yup.string().trim(),
-  pictures: yup.array(fileValidator.required()).required(),
+  pictures: yup.array(formidableFileValidator.required()).required(),
   cuisine: yup.number().nullable(),
   /**
    * Accept both existing ingredient IDs (number) and new arbitrary ingredients (string)
