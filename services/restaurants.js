@@ -7,16 +7,8 @@ import {
   SagaStepCompensationFailed,
   SagaStepInvocationFailed,
 } from "node-sagas";
+import jsFileValidator from "../yup-validators/js-file-validator";
 
-const fileValidator = yup.object().shape({
-  name: yup.string().required(),
-  path: yup.string().required(),
-  size: yup.number().required().integer(),
-  type: yup
-    .string()
-    .required()
-    .matches(/^image\/.+/),
-});
 const createRestaurantDTOValidator = yup.object().shape({
   name: yup.string().required().trim(),
   bio: yup.string().trim(),
@@ -194,8 +186,35 @@ export default class RestaurantsService {
     }
   }
 
-  updateRestaurant(restaurantId, data) {
-    return this.restaurantRepository.update("id", restaurantId, data);
+  /**
+   * @TODO Use saga
+   */
+  updateRestaurant(restaurantId, userId, data) {
+    /**
+     * @pseudocode
+     *
+     * if profilePicture is a file
+     *    upload the file to S3
+     *    save uploaded file info into 'files' table
+     *    reference the file id and update new data in 'restaurants' table
+     * else if profilePicture is an integer
+     *    update restaurant
+     * else
+     *    throw new Error(Invalid profilePicture data)
+     *
+     */
+    console.log(`data: `, data);
+    if (typeof data.profilePicture === "number") {
+      return this.restaurantRepository.update("id", restaurantId, data);
+    } else if (jsFileValidator.isValidSync(data.profilePicture)) {
+      return this.uploadProfilePictureToS3(restaurantId, data.profilePicture)
+        .then(f => this.saveProfilePictureFileInfoToDatabase(userId, f))
+        .then(([fid]) =>
+          this.updateRestaurant(restaurantId, userId, { profilePicture: fid })
+        );
+    } else {
+      throw new Error(`Invalid data type of 'profilePicture'`);
+    }
   }
 
   deleteRestaurant(restaurantId) {
