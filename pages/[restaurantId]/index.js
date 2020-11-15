@@ -44,7 +44,7 @@ export async function getServerSideProps({ params }) {
   const getRestaurantsServiceInstance = require("../../helpers/get-restaurants-service-instance")
     .default;
   const restaurantsService = getRestaurantsServiceInstance();
-  let restaurant = await restaurantsService.findRestaurantById(
+  let [restaurant] = await restaurantsService.findRestaurantById(
     params.restaurantId.slice(1)
   );
 
