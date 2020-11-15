@@ -22,16 +22,27 @@ const getRestaurantById = async (req, res, next) => {
   res.json({ restaurant });
 };
 
-const updateRestaurant = async (req, res, next) => {
+const updateRestaurant = (req, res, next) => {
   const { restaurantId } = req.query;
   const restaurantsService = getRestaurantsServiceInstance();
-
-  console.log(`req.body: `, req.body);
 
   restaurantsService
     .updateRestaurant(restaurantId, req.user.id, req.body)
     .then(() => res.status(200).json({ updatedRestaurantId: restaurantId }))
+    /**
+     * @TODO Add custom exception to provide meaningful error
+     */
     .catch(err => next(err));
+};
+
+const deleteRestaurant = (req, res, next) => {
+  const { restaurantId } = req.query;
+  const restaurantsService = getRestaurantsServiceInstance();
+
+  restaurantsService
+    .deleteRestaurant(restaurantId)
+    .then(() => res.status(204).end())
+    .catch(next);
 };
 
 export default nc()
@@ -51,7 +62,8 @@ export default nc()
     },
     validate("body", updateRestaurantProfileValidator),
     updateRestaurant
-  );
+  )
+  .delete(deleteRestaurant);
 
 export const config = {
   api: {
