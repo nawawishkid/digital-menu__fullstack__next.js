@@ -9,7 +9,9 @@ import multipartFormData from "../../../../middlewares/multipart-form-data";
 const getRestaurantById = async (req, res, next) => {
   const { restaurantId } = req.query;
   const restaurantsService = getRestaurantsServiceInstance();
-  const restaurant = await restaurantsService.findRestaurantById(restaurantId);
+  const [restaurant] = await restaurantsService.findRestaurantById(
+    restaurantId
+  );
 
   if (!restaurant)
     return next({
